@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'"
+    />
+    <title>TIA MCP V16 控制台</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app" inert aria-hidden="true">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="sidebar__logo" title="TIA MCP V16 控制台">
+          <img src="assets/logo-tia.png" alt="TIA MCP" />
+        </div>
+        <nav class="sidebar__nav">
+          <button class="nav-item is-active" data-page="home" aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z" /></svg>
+            <span>主页</span>
+          </button>
+          <button class="nav-item" data-page="reasoning">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"/><circle cx="12" cy="12" r="3" /></svg>
+            <span>推理设置</span>
+          </button>
+          <button class="nav-item" data-page="settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg>
+            <span>设置</span>
+          </button>
+        </nav>
+        <div class="creator-profile">
+          <button
+            class="creator-avatar"
+            id="creator-avatar"
+            type="button"
+            aria-label="查看机器人协会介绍"
+            aria-controls="creator-popover"
+          >
+            <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+              <circle cx="24" cy="24" r="24" fill="#e8efff" />
+              <path d="M24 14v5m-3-5h6" stroke="#3159a5" stroke-width="2" stroke-linecap="round" />
+              <rect x="12" y="19" width="24" height="16" rx="5" fill="#3159a5" />
+              <circle cx="20" cy="26" r="2" fill="#fff" />
+              <circle cx="28" cy="26" r="2" fill="#fff" />
+              <path d="M21 31h6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </button>
+          <aside class="creator-popover" id="creator-popover" aria-label="机器人协会介绍">
+            <p><strong>机器人协会</strong> · 欢迎交流工业自动化与 AI 技术。</p>
+          </aside>
+        </div>
+        <span class="version-badge" id="version-badge">v—</span>
+      </aside>
+
+      <header class="titlebar">
+        <div class="titlebar__page">
+          <strong id="page-title">主页</strong>
+          <span id="page-subtitle">服务运行状态与调用数据</span>
+        </div>
+        <div class="titlebar__drag"></div>
+        <div class="window-controls">
+          <button class="window-btn" id="btn-minimize" aria-label="最小化" title="最小化">
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5h10" stroke="currentColor" /></svg>
+          </button>
+          <button class="window-btn" id="btn-maximize" aria-label="最大化" title="最大化">
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" /></svg>
+          </button>
+          <button class="window-btn window-btn--close" id="btn-close" aria-label="关闭" title="关闭">
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0 0 10" stroke="currentColor" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="page-stage">
+        <section class="page is-active" id="page-home" data-page-panel="home">
+          <div class="envbar" id="envbar" aria-label="运行环境">
+            <article class="env-item" id="env-tia" data-state="unknown">
+              <i class="dot dot--muted"></i>
+              <span class="env-item__label">博途 V16</span>
+              <strong class="env-item__value" id="env-tia-value">检测中…</strong>
+              <span class="env-item__meta" id="env-tia-meta"></span>
+            </article>
+            <article class="env-item" id="env-openness" data-state="unknown">
+              <i class="dot dot--muted"></i>
+              <span class="env-item__label">Openness 用户组</span>
+              <strong class="env-item__value" id="env-openness-value">检测中…</strong>
+              <span class="env-item__meta" id="env-openness-meta"></span>
+            </article>
+          </div>
+
+          <div class="alert" id="openness-alert" hidden>
+            <strong>当前 Windows 用户不在「Siemens TIA Openness」组，MCP 无法连接 TIA。</strong>
+            <ol id="openness-steps"></ol>
+          </div>
+
+          <div class="stats" aria-label="访问统计">
+            <article class="stat-card"><span class="stat-card__label">今日访问</span><strong class="stat-card__value" id="stat-today">0</strong><span class="stat-card__hint" id="stat-today-hint">今日累计调用次数</span></article>
+            <article class="stat-card"><span class="stat-card__label">本次启动</span><strong class="stat-card__value" id="stat-session">0</strong><span class="stat-card__hint" id="stat-session-hint">本次运行期间调用次数</span></article>
+            <article class="stat-card"><span class="stat-card__label">工具总数</span><strong class="stat-card__value" id="stat-tools">—</strong><span class="stat-card__hint" id="stat-tools-hint">MCP 已注册工具数量</span></article>
+            <article class="stat-card"><span class="stat-card__label">服务时长</span><strong class="stat-card__value" id="stat-uptime">—</strong><span class="stat-card__hint" id="stat-uptime-hint">本次启动持续运行时间</span></article>
+          </div>
+
+          <div class="home-grid">
+            <article class="card service-card">
+              <header class="card__header">
+                <div><span class="stat-card__label">服务控制</span></div>
+                <span class="pill" id="service-pill" data-state="stopped"><i class="dot dot--muted"></i><span id="service-pill-text">已停止</span></span>
+              </header>
+              <button class="power" id="service-toggle" role="switch" aria-checked="false" aria-label="启动 MCP 服务">
+                <span class="power__text"><span class="power__title" id="power-title">启动服务</span><span class="power__hint" id="power-hint">点击开关启动 MCP 服务</span></span>
+                <span class="power__track"><span class="power__thumb"></span></span>
+              </button>
+              <dl class="kv">
+                <div><dt>端点</dt><dd><code id="endpoint-text">http://127.0.0.1:8001/mcp</code></dd></div>
+                <div><dt>进程</dt><dd id="service-pid">—</dd></div>
+                <div><dt>启动时间</dt><dd id="service-started">—</dd></div>
+                <div><dt>当前日志</dt><dd><code class="kv__file" id="log-file-text">—</code></dd></div>
+              </dl>
+              <button class="mcp-config-copy" id="btn-copy-mcp-config" type="button">
+                <span class="mcp-config-copy__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/></svg>
+                </span>
+                <span class="mcp-config-copy__text"><strong>复制 MCP 配置</strong><small>JSON 格式，可直接粘贴到 Agent 工具</small></span>
+                <span class="mcp-config-copy__action">复制</span>
+              </button>
+              <p class="inline-alert" id="service-error" hidden></p>
+            </article>
+
+            <article class="card chart-card">
+              <header class="card__header">
+                <div><span class="stat-card__label">历史数据</span><p class="card__sub" id="chart-sub">每天调用的工具次数</p></div>
+                <div class="segmented" role="tablist" aria-label="历史区间">
+                  <button class="segmented__btn" data-days="7" role="tab" aria-selected="false">近 7 天</button>
+                  <button class="segmented__btn is-active" data-days="30" role="tab" aria-selected="true">近 30 天</button>
+                </div>
+              </header>
+              <div class="chart-wrap"><canvas id="trend-chart"></canvas><div class="chart-tip" id="chart-tip" hidden></div></div>
+              <div class="chart-summary"><span>区间合计 <b id="chart-total">0</b> 次</span><span>日均 <b id="chart-average">0</b> 次</span><span>峰值 <b id="chart-peak">0</b> 次</span></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" id="page-reasoning" data-page-panel="reasoning" hidden>
+          <div class="settings-page">
+            <header class="settings-page__header">
+              <h1>推理设置</h1>
+              <p>设置 MCP 的默认编程策略、连接输出模板与本机知识库，让 AI 在编程前按需读取用户自己的资料。</p>
+            </header>
+
+            <section class="settings-section" aria-labelledby="reasoning-defaults-title">
+              <h2 id="reasoning-defaults-title">默认编程策略</h2>
+              <div class="settings-panel">
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>编程语言</strong>
+                    <span>开启时优先生成 LAD 梯形图；关闭后优先使用 SCL。用户明确指定的语言始终优先。</span>
+                  </div>
+                  <div class="setting-control">
+                    <span class="choice-summary" id="language-summary">当前：LAD（梯形图）</span>
+                    <button class="switch" id="prefer-lad" role="switch" aria-checked="true" aria-label="优先使用 LAD"><span></span></button>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>程序结构</strong>
+                    <span>开启时优先写入 Main（OB1）；关闭后拆分到 FB/FC，并由 Main 统一调用。</span>
+                  </div>
+                  <div class="setting-control">
+                    <span class="choice-summary" id="block-summary">当前：Main (OB1)</span>
+                    <button class="switch" id="prefer-main" role="switch" aria-checked="true" aria-label="优先写入 Main"><span></span></button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-section" aria-labelledby="output-template-title">
+              <h2 id="output-template-title">输出模板</h2>
+              <div class="settings-panel">
+                <div class="setting-row setting-row--template">
+                  <div class="setting-copy">
+                    <strong>连接博途输出模板</strong>
+                    <span>AI 完成「连接博途」任务后，按这份 Markdown 模板输出连接结果。模板正文由 MCP 服务实时读取，修改文件内容无需重启服务；更换文件后会自动重启并载入。</span>
+                    <span class="template-status" id="connect-template-status" data-tone="muted">尚未选择模板文件。</span>
+                    <code class="path-box" id="connect-template-path">—</code>
+                  </div>
+                  <div class="setting-control setting-control--template">
+                    <button type="button" class="btn btn--soft" id="btn-pick-connect-template">选择文件…</button>
+                    <button type="button" class="btn btn--soft" id="btn-open-connect-template" hidden>打开</button>
+                    <button type="button" class="btn btn--soft" id="btn-clear-connect-template" hidden>清除</button>
+                  </div>
+                </div>
+                <details class="template-preview" id="connect-template-preview-wrap" hidden>
+                  <summary>预览模板内容</summary>
+                  <pre class="template-preview__body" id="connect-template-preview"></pre>
+                </details>
+              </div>
+            </section>
+
+            <section class="settings-section" aria-labelledby="knowledge-base-title">
+              <h2 id="knowledge-base-title">知识库</h2>
+              <div class="settings-panel">
+                <div class="setting-row setting-row--template">
+                  <div class="setting-copy">
+                    <strong>知识库选择</strong>
+                    <span>选择本机知识库的根目录。编程前，AI 会通过 MCP 在该目录内按需检索并读取相关资料；不会访问所选目录之外的文件。支持 Markdown、TXT、JSON、YAML、CSV、XML 与 PLC 源文件；PDF/Word 请先转为文本。保存后 MCP 服务会重启，建议在没有 Agent 任务运行时操作。</span>
+                    <span class="template-status" id="knowledge-base-status" data-tone="muted">尚未选择知识库目录。</span>
+                    <code class="path-box" id="knowledge-base-path">—</code>
+                  </div>
+                  <div class="setting-control setting-control--template">
+                    <button type="button" class="btn btn--soft" id="btn-pick-knowledge-base">选择目录…</button>
+                    <button type="button" class="btn btn--soft" id="btn-open-knowledge-base" hidden>打开目录</button>
+                    <button type="button" class="btn btn--soft" id="btn-clear-knowledge-base" hidden>清除</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="page" id="page-settings" data-page-panel="settings" hidden>
+          <div class="settings-page">
+            <header class="settings-page__header">
+              <h1>设置</h1>
+              <p>管理控制台的显示外观与本地运行日志。</p>
+            </header>
+
+            <section class="settings-section" aria-labelledby="appearance-title">
+              <h2 id="appearance-title">外观</h2>
+              <div class="settings-panel">
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>主题模式</strong>
+                    <span>选择适合当前使用环境的明亮或暗黑界面。</span>
+                  </div>
+                  <div class="theme-options" role="radiogroup" aria-label="主题颜色">
+                    <button class="theme-option" data-theme="light" role="radio" aria-checked="false"><i class="theme-swatch theme-swatch--light"></i><span>明亮</span></button>
+                    <button class="theme-option is-active" data-theme="dark" role="radio" aria-checked="true"><i class="theme-swatch theme-swatch--dark"></i><span>暗黑</span></button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-section" aria-labelledby="log-management-title">
+              <h2 id="log-management-title">日志管理</h2>
+              <div class="settings-panel">
+                <div class="setting-row">
+                  <div class="setting-copy">
+                    <strong>日志目录</strong>
+                    <span id="log-sub">尚未生成日志文件 · 目录 log/</span>
+                    <code class="path-box" id="log-directory-text">log/</code>
+                  </div>
+                  <button class="btn btn--soft" id="btn-open-logdir">打开目录</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-section" aria-labelledby="log-preview-title">
+              <h2 id="log-preview-title">运行日志</h2>
+              <div class="settings-panel log-panel">
+                <div class="setting-row setting-row--compact">
+                  <div class="setting-copy">
+                    <strong>最近的运行记录</strong>
+                    <span>实时查看 MCP 服务最新输出。</span>
+                  </div>
+                  <div class="log-toolbar"><span class="live-dot" id="log-live" hidden><i></i>实时</span><button class="btn btn--soft" id="btn-refresh-log">刷新</button></div>
+                </div>
+                <pre class="log-view" id="log-view"><span class="log-empty">暂无日志，启动服务后这里会实时显示运行记录。</span></pre>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <footer class="statusbar">
+        <div class="statusbar__group">
+          <i class="conn" id="conn-dot" data-state="offline"></i>
+          <span id="status-text">正在读取服务状态…</span>
+        </div>
+        <div class="statusbar__group">
+          <span id="status-poll">每 5 秒自动刷新</span>
+          <span class="statusbar__sep">·</span>
+          <span id="status-updated">更新于 —</span>
+        </div>
+      </footer>
+    </div>
+
+    <div class="startup-notice" id="startup-notice">
+      <section
+        class="startup-notice__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="startup-notice-title"
+        aria-describedby="startup-notice-description startup-notice-points"
+      >
+        <header class="startup-notice__header">
+          <span class="startup-notice__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3 20 6.5v5.8c0 4.4-3.2 7.4-8 8.7-4.8-1.3-8-4.3-8-8.7V6.5z" />
+              <path d="M12 8v5" />
+              <circle cx="12" cy="16.5" r=".8" />
+            </svg>
+          </span>
+          <div>
+            <span class="startup-notice__eyebrow">使用声明 · TIA PORTAL V16</span>
+            <h1 id="startup-notice-title">欢迎使用博途 V16 MCP</h1>
+          </div>
+          <span class="startup-notice__version">V16 ONLY</span>
+        </header>
+
+        <div class="startup-notice__body">
+          <p class="startup-notice__lead" id="startup-notice-description">
+            机器人协会版基于原开源项目，面向 TIA Portal Openness
+            与 MCP 相关技术的学习、交流及功能验证。
+          </p>
+          <div class="startup-notice__callout">
+            <strong>使用前请确认</strong>
+            <ul id="startup-notice-points">
+              <li>本软件仅供学习、研究与技术交流使用，不建议直接用于生产环境或未经充分验证的工业控制现场。</li>
+              <li>本版仅操作 TIA Portal V16 的隔离副本，LAD 通过 V16 SimaticML XML 导入；不附加现有窗口、不连接或下载到 PLC。</li>
+              <li>本 MCP 本身不进行任何推理，仅提供 TIA Portal 工具与执行通道；实际编程效果取决于所连接大模型的能力、提示词及上下文质量，请务必人工审核生成结果。</li>
+              <li>执行工程写入、编译或下载等操作前，请务必备份项目并核对目标设备；使用者应自行评估并承担相关风险。</li>
+            </ul>
+          </div>
+          <p class="startup-notice__hint">请在充分理解上述说明后继续使用。</p>
+        </div>
+
+        <footer class="startup-notice__actions">
+          <button class="btn btn--primary startup-notice__ack" id="startup-notice-ack" type="button">
+            明白了
+          </button>
+        </footer>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" hidden></div>
+
+    <script src="chart.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
