@@ -1,0 +1,9 @@
+.venv/
+bin/
+__pycache__/
+node_modules/
+log/
+console-data/
+desktop/dist/
+tests/fixtures-*/
+tests/fixture-path.txt
