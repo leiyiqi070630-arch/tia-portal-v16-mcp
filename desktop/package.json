@@ -1,0 +1,61 @@
+{
+  "name": "tia-mcp-v16-console",
+  "productName": "TIA MCP V16 控制台",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TIA Portal V16 MCP 服务桌面控制台（机器人协会版）",
+  "author": {
+    "name": "机器人协会"
+  },
+  "license": "MIT",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "45.3.3",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "org.roboticsassociation.tia-mcp-v16-console",
+    "productName": "TIA MCP V16 控制台",
+    "copyright": "Copyright © 2026 机器人协会（仅限本版修改）",
+    "asar": true,
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "!**/*.map"
+    ],
+    "extraFiles": [
+      {
+        "from": "../LICENSE",
+        "to": "LICENSE.txt"
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": "app-meta",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  }
+}
